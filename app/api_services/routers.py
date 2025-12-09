@@ -13,8 +13,8 @@ router = APIRouter(
 
 
 @router.get('/setup-database', description='Удаление текущей и создание новой БД. Проверить что в app.orm.services есть импорты ВСЕХ таблиц')
-def setup_database() -> Literal['OK']:
-    drop_and_create_database()
+async def setup_database() -> Literal['OK']:
+    await drop_and_create_database()
     return 'OK'
 
 

@@ -1,4 +1,3 @@
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,7 +10,6 @@ class BaseModelSettings(BaseSettings):
 
 
 class Settings(BaseModelSettings):
-    BOT_TOKEN: str = Field(validation_alias='TELEGRAM_BOT_TOKEN')
     SECRET_KEY: str
 
 settings = Settings()
@@ -27,7 +25,7 @@ class DBSettings(BaseModelSettings):
     @property
     def DATABASE_URL(self):
         return f'postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
-    
+
     MONGO_URL: str
 
 db_settings = DBSettings()

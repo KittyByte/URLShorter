@@ -1,12 +1,12 @@
 import bcrypt
 
 from app.orm.dao import BaseDAO
-from app.users.models import UserOrm
+from app.users.models import UserModel
 from app.users.schemas import UserInDB
 
 
 class UserDAO(BaseDAO):
-    model = UserOrm
+    model = UserModel
 
     @classmethod
     async def _hash_password(cls, password: str):

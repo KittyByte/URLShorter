@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database import BaseOrm
 
 
-class UserOrm(BaseOrm):
+class UserModel(BaseOrm):
     __tablename__ = "user"
 
     username: Mapped[str] = mapped_column(String(50), unique=True)
