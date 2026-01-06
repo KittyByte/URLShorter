@@ -1,4 +1,4 @@
-from argon2 import PasswordHasher
+import argon2
 from asyncio import to_thread
 
 from app.orm.dao import BaseDAO
@@ -6,7 +6,7 @@ from app.users.models import UserModel
 from app.users.schemas import UserInDB
 
 
-ph = PasswordHasher()
+ph = argon2.PasswordHasher()
 
 
 class UserDAO(BaseDAO):
@@ -34,4 +34,7 @@ class UserDAO(BaseDAO):
 
     @classmethod
     async def is_valid_password(cls, password: str, hashed_password: str) -> bool:
-        return await to_thread(ph.verify, hashed_password, password)
+        try:
+            return await to_thread(ph.verify, hashed_password, password)
+        except argon2.exceptions.VerifyMismatchError:
+            return False
