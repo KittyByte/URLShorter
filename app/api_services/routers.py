@@ -19,12 +19,12 @@ async def setup_database() -> Literal['OK']:
 
 
 @router.get('/setup-tables', description='Проверить что в app.orm.services есть импорты ВСЕХ таблиц перед их созданием!')
-def create_tables_api() -> Literal['OK']:
-    create_tables()
+async def create_tables_api() -> Literal['OK']:
+    await create_tables()
     return 'OK'
 
 
 @router.get('/exec-sql')
-def exec_sql() -> Any:
-    return some_sql()
+async def exec_sql() -> Any:
+    return await some_sql()
 

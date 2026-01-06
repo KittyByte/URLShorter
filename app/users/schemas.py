@@ -17,7 +17,6 @@ class User(BaseModel):
     fullname: str | None = None
     email: str | None = None
     disabled: bool
-    telegram_id: int | None = None
 
 
 class UserInDB(User):

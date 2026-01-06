@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
@@ -9,10 +10,12 @@ class BaseModelSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
 
+
 class Settings(BaseModelSettings):
     SECRET_KEY: str
 
-broker_settings = Settings()
+settings = Settings()
+
 
 
 class DBSettings(BaseModelSettings):

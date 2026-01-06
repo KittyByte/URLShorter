@@ -12,7 +12,6 @@ class UserModel(BaseOrm):
     fullname: Mapped[str | None]
     email: Mapped[str | None]
     disabled: Mapped[bool] = mapped_column(default=False)
-    telegram_id: Mapped[int | None]
 
     def __repr__(self) -> str:
         return (

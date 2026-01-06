@@ -17,10 +17,11 @@ router = APIRouter(
 
 @router.post("/token")
 async def create_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
-    user = authenticate_user(form_data.username, form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
+
     if not user:
         raise invalid_user_exception
-    access_token = create_access_token(sub = user.username)
+    access_token = await create_access_token(sub = user.username)
     return Token(access_token=access_token, token_type="bearer")
 
 
@@ -29,12 +30,12 @@ async def read_users_me(current_user: GetCurrentActiveUserDep):
     return current_user
 
 
-@router.get("/me/items/")
-async def read_own_items(current_user: GetCurrentActiveUserDep):
-    return [{"item_id": "Foo", "owner": current_user.username}]
-
-
 @router.get("/login", response_class=HTMLResponse)
 async def get_html_user_login():
-    return FileResponse('app/static/fastapi_login.html')
+    return FileResponse('app/static/login.html')
+
+
+@router.get('/register', response_class=HTMLResponse)
+async def register_user():
+    return FileResponse('app/static/login.html')
 

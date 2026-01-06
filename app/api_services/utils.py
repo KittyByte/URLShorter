@@ -8,14 +8,13 @@ from app.database import BaseOrm, engine, session_factory
 from app.users.dao import UserDAO, UserModel
 
 
-def create_user():
-    UserDAO.create(
+async def create_user():
+    await UserDAO.create(
         username='Spongebob',
         password='acuna_matata',
         fullname='Spongebob Squarepants',
         email='qwerty@gmail.com',
-        disabled=False,
-        telegram_id=670076879
+        disabled=False
     )
 
 
@@ -33,8 +32,8 @@ async def drop_and_create_database():
 
 
 
-def some_sql():
-    # create_user()
+async def some_sql():
+    await create_user()
     # update_sales_report()
     # select_sales_report()
     # select_sales_reports_with_avg()

@@ -3,12 +3,6 @@
 
 
 ### 1. Подготовка проекта и инфраструктура (обязательно сначала)
-- [ ] Настроить Docker Compose с сервисами:
-  - fastapi (app)
-  - redis
-  - mongo
-  - postgres (для пользователей и SQLAlchemy)
-  - clickhouse
 - [ ] Добавить базовый CI (GitHub Actions: lint + tests)
 
 ### 2. MVP: Core функциональность сокращателя
