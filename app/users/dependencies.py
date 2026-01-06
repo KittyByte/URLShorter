@@ -5,7 +5,7 @@ from fastapi import Depends
 from jwt.exceptions import InvalidTokenError
 
 from app.security import oauth2_scheme
-from app.settings import settings, ALGORITHM
+from app.settings import broker_settings, ALGORITHM
 from app.users.schemas import TokenData, UserInDB
 from app.exceptions.user_exceptions import credentials_exception, inactive_user_exception
 from app.users.service import get_user
@@ -14,7 +14,7 @@ from app.users.service import get_user
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, broker_settings.SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData(**payload)
     except InvalidTokenError:
         raise credentials_exception

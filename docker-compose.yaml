@@ -4,12 +4,72 @@ services:
     build: .
     command: python3 app/main.py
     ports:
-      - 80:80
+      - 127.0.0.1:80:8000
     env_file:
       - .env
+
+  redis:
+    container_name: ${COMPOSE_PROJECT_NAME}-redis
+    image: redis:alpine
+    restart: always
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis_data:/data
+
+  redisinsight:
+    container_name: ${COMPOSE_PROJECT_NAME}-redisinsight
+    image: redis/redisinsight:latest
+    ports:
+      - 127.0.0.1:5540:5540
+    volumes:
+      - redisinsight_data:/data
+    environment:
+      - RI_REDIS_HOST0=${REDIS_HOST}
+      - RI_REDIS_PORT0=${REDIS_PORT}
+      - RI_REDIS_USERNAME0=${REDIS_USERNAME}
+      - RI_REDIS_PASSWORD0=${REDIS_PASSWORD}
     depends_on:
-      rabbitmq:
-        condition: service_healthy
+      - redis
+
+  mongo:
+    container_name: ${COMPOSE_PROJECT_NAME}-mongodb
+    image: mongo:latest
+    restart: always
+    expose:
+      - ${MONGO_PORT}
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+
+  mongo-express:
+    container_name: ${COMPOSE_PROJECT_NAME}-mongo-express
+    image: mongo-express
+    restart: always
+    ports:
+      - 127.0.0.1:8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:${MONGO_PORT}/
+      ME_CONFIG_BASICAUTH_ENABLED: true
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+    depends_on:
+      - mongo
+
+  clickhouse:
+    container_name: ${COMPOSE_PROJECT_NAME}-clickhouse
+    image: yandex/clickhouse-server
+    restart: always
+    ports:
+      - "8123:8123"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
 
   postgres:
     container_name: ${COMPOSE_PROJECT_NAME}-postgres
@@ -31,6 +91,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    env_file:
+      - .env
 
   rabbitmq:
     container_name: ${COMPOSE_PROJECT_NAME}-rabbitmq
@@ -48,7 +110,7 @@ services:
       timeout: 30s
       retries: 3
     ports:
-      - 15672:15672
+      - 127.0.0.1:15672:15672
 
   celery-flower:
     container_name: ${COMPOSE_PROJECT_NAME}-celery-flower
@@ -57,7 +119,7 @@ services:
     environment:
       - FLOWER_UNAUTHENTICATED_API=true
     ports:
-      - 5555:5555
+      - 127.0.0.1:5555:5555
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -68,3 +130,11 @@ volumes:
     name: ${COMPOSE_PROJECT_NAME}_rabbimq_data
   postgres_data:
     name: ${COMPOSE_PROJECT_NAME}_postgres_data
+  clickhouse_data:
+    name: ${COMPOSE_PROJECT_NAME}_clickhouse_data
+  redis_data:
+    name: ${COMPOSE_PROJECT_NAME}_redis_data
+  mongo_data:
+    name: ${COMPOSE_PROJECT_NAME}_mongo_data
+  redisinsight_data:
+    name: ${COMPOSE_PROJECT_NAME}_redisinsight_data

@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 
-from app.settings import settings, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.settings import broker_settings, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.users.schemas import UserInDB
 from app.users.dao import UserDAO
 
@@ -27,7 +27,7 @@ def create_access_token(
         'exp': datetime.now(timezone.utc) + expires_delta
     }
     to_encode.update(data)
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, broker_settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
 def get_user(username: str) -> UserInDB | None:

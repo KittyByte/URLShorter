@@ -12,7 +12,7 @@ class BaseModelSettings(BaseSettings):
 class Settings(BaseModelSettings):
     SECRET_KEY: str
 
-settings = Settings()
+broker_settings = Settings()
 
 
 class DBSettings(BaseModelSettings):
@@ -26,9 +26,17 @@ class DBSettings(BaseModelSettings):
     def DATABASE_URL(self):
         return f'postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
 
-    MONGO_URL: str
+    MONGO_USERNAME: str
+    MONGO_PASSWORD: str
+    MONGO_HOST: str
+    MONGO_PORT: int
+
+    @property
+    def MONGO_URL(self):
+        return f'mongodb://{self.MONGO_USERNAME}:{self.MONGO_PASSWORD}@{self.MONGO_HOST}:{self.MONGO_PORT}/'
 
 db_settings = DBSettings()
+
 
 
 class BrokerSettings(BaseModelSettings):
@@ -41,10 +49,10 @@ class BrokerSettings(BaseModelSettings):
     @property
     def CELERY_BROKER_URL(self):
         return f'amqp://{self.RABBITMQ_USER}:{self.RABBITMQ_PASSWORD}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/{self.RABBITMQ_VHOST}'
+
     @property
     def CELERY_RESULT_BACKEND(self):
-        return f'db+postgresql://\
-            {db_settings.DB_USER}:{db_settings.DB_PASSWORD}@{db_settings.DB_HOST}:{db_settings.DB_PORT}/{db_settings.DB_NAME}'
+        return f'db+postgresql://{db_settings.DB_USER}:{db_settings.DB_PASSWORD}@{db_settings.DB_HOST}:{db_settings.DB_PORT}/{db_settings.DB_NAME}'
 
 broker_settings = BrokerSettings()
 
