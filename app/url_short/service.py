@@ -1,7 +1,10 @@
-from app.url_short.dao import ShortURLDAO
-from app.url_short.schemas import ShortenURL
 import random
 import string
+
+from sqlalchemy import exc
+
+from app.url_short.dao import ShortURLDAO
+from app.url_short.schemas import ShortenURL
 
 
 
@@ -12,10 +15,12 @@ async def generate_short_code(length: int = 6) -> str:
 
 async def create_short_url(original_url: str, owner_id: int | None = None) -> str:
     short_code = await generate_short_code()
-
-    await ShortURLDAO().create(
-        original_url=original_url, short_code=short_code, owner_id=owner_id
-    )
+    try:
+        await ShortURLDAO().create(
+            original_url=original_url, short_code=short_code, owner_id=owner_id
+        )
+    except exc.IntegrityError:
+        return await create_short_url(original_url, owner_id)
 
     return short_code
 

@@ -32,44 +32,44 @@ services:
     depends_on:
       - redis
 
-  mongo:
-    container_name: ${COMPOSE_PROJECT_NAME}-mongodb
-    image: mongo:latest
-    restart: always
-    expose:
-      - ${MONGO_PORT}
-    volumes:
-      - mongo_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+  # mongo:
+  #   container_name: ${COMPOSE_PROJECT_NAME}-mongodb
+  #   image: mongo:latest
+  #   restart: always
+  #   expose:
+  #     - ${MONGO_PORT}
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
 
-  mongo-express:
-    container_name: ${COMPOSE_PROJECT_NAME}-mongo-express
-    image: mongo-express
-    restart: always
-    ports:
-      - 127.0.0.1:8081:8081
-    environment:
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:${MONGO_PORT}/
-      ME_CONFIG_BASICAUTH_ENABLED: true
-      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
-    depends_on:
-      - mongo
+  # mongo-express:
+  #   container_name: ${COMPOSE_PROJECT_NAME}-mongo-express
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 127.0.0.1:8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:${MONGO_PORT}/
+  #     ME_CONFIG_BASICAUTH_ENABLED: true
+  #     ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
+  #     ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+  #   depends_on:
+  #     - mongo
 
-  clickhouse:
-    container_name: ${COMPOSE_PROJECT_NAME}-clickhouse
-    image: yandex/clickhouse-server
-    restart: always
-    ports:
-      - "8123:8123"
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
+  # clickhouse:
+  #   container_name: ${COMPOSE_PROJECT_NAME}-clickhouse
+  #   image: yandex/clickhouse-server
+  #   restart: always
+  #   ports:
+  #     - "8123:8123"
+  #   ulimits:
+  #     nofile:
+  #       soft: 262144
+  #       hard: 262144
+  #   volumes:
+  #     - clickhouse_data:/var/lib/clickhouse
 
   postgres:
     container_name: ${COMPOSE_PROJECT_NAME}-postgres
@@ -81,48 +81,50 @@ services:
       POSTGRES_DB: ${DB_NAME}
     expose:
       - ${DB_PORT}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  celery-main:
-    container_name: ${COMPOSE_PROJECT_NAME}-celery-main
-    build: .
-    command: celery -A app.celery.celery_app worker -l info
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    env_file:
-      - .env
+  # celery-main:
+  #   container_name: ${COMPOSE_PROJECT_NAME}-celery-main
+  #   build: .
+  #   command: celery -A app.celery.celery_app worker -l info
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   env_file:
+  #     - .env
 
-  rabbitmq:
-    container_name: ${COMPOSE_PROJECT_NAME}-rabbitmq
-    image: rabbitmq:4.0-management
-    volumes:
-      - rabbimq_data:/var/lib/rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-      - RABBITMQ_NODE_PORT=${RABBITMQ_PORT}
-      - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST}
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 10s
-      timeout: 30s
-      retries: 3
-    ports:
-      - 127.0.0.1:15672:15672
+  # rabbitmq:
+  #   container_name: ${COMPOSE_PROJECT_NAME}-rabbitmq
+  #   image: rabbitmq:4.0-management
+  #   volumes:
+  #     - rabbimq_data:/var/lib/rabbitmq
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+  #     - RABBITMQ_NODE_PORT=${RABBITMQ_PORT}
+  #     - RABBITMQ_DEFAULT_VHOST=${RABBITMQ_VHOST}
+  #   healthcheck:
+  #     test: rabbitmq-diagnostics -q ping
+  #     interval: 10s
+  #     timeout: 30s
+  #     retries: 3
+  #   ports:
+  #     - 127.0.0.1:15672:15672
 
-  celery-flower:
-    container_name: ${COMPOSE_PROJECT_NAME}-celery-flower
-    build: .
-    command: celery -A app.celery.celery_app flower
-    environment:
-      - FLOWER_UNAUTHENTICATED_API=true
-    ports:
-      - 127.0.0.1:5555:5555
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+  # celery-flower:
+  #   container_name: ${COMPOSE_PROJECT_NAME}-celery-flower
+  #   build: .
+  #   command: celery -A app.celery.celery_app flower
+  #   environment:
+  #     - FLOWER_UNAUTHENTICATED_API=true
+  #   ports:
+  #     - 127.0.0.1:5555:5555
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
 
 
 volumes:

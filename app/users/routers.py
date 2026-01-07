@@ -25,17 +25,17 @@ async def create_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/me", response_model=User)
-async def read_users_me(current_user: GetCurrentActiveUserDep):
+@router.get("/me")
+async def read_users_me(current_user: GetCurrentActiveUserDep) -> User:
     return current_user
 
 
-@router.get("/login", response_class=HTMLResponse)
-async def get_html_user_login():
+@router.get("/login", response_class=HTMLResponse, summary="User login page")
+async def html_login_user():
     return FileResponse('app/static/login.html')
 
 
-@router.get('/register', response_class=HTMLResponse)
-async def register_user():
+@router.get('/register', response_class=HTMLResponse, summary="User registration page")
+async def html_register_user():
     return FileResponse('app/static/login.html')
 

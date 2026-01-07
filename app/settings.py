@@ -37,6 +37,15 @@ class DBSettings(BaseModelSettings):
     @property
     def MONGO_URL(self):
         return f'mongodb://{self.MONGO_USERNAME}:{self.MONGO_PASSWORD}@{self.MONGO_HOST}:{self.MONGO_PORT}/'
+    
+    REDIS_HOST: str
+    REDIS_USER: str
+    REDIS_PASSWORD: str
+    REDIS_PORT: int
+
+    @property
+    def REDIS_URL(self):
+        return f'redis://{self.REDIS_USER}:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/'
 
 db_settings = DBSettings()
 
