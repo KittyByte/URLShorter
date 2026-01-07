@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>404 — Страница не найдена</title>
+    <style>
+        :root{
+            --bg1:#0f1724;
+            --bg2:#0b1020;
+            --accent:#7c5cff;
+            --muted:#9aa4b2;
+            --card:#0f1728;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background:linear-gradient(135deg,var(--bg1),var(--bg2));
+            color:#e6eef8;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+        }
+        .card{
+            width:100%;
+            max-width:920px;
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border:1px solid rgba(255,255,255,0.04);
+            border-radius:16px;
+            padding:48px;
+            display:flex;
+            gap:32px;
+            align-items:center;
+            box-shadow:0 10px 30px rgba(2,6,23,0.6);
+            backdrop-filter: blur(6px);
+        }
+        .art{
+            flex:0 0 180px;
+            height:180px;
+            border-radius:12px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:linear-gradient(135deg, rgba(124,92,255,0.15), rgba(92,149,255,0.08));
+            box-shadow: inset 0 -10px 30px rgba(124,92,255,0.06);
+        }
+        .code{
+            font-weight:700;
+            font-size:64px;
+            letter-spacing:2px;
+            color:var(--accent);
+            text-shadow:0 6px 18px rgba(124,92,255,0.12);
+        }
+        .content{flex:1}
+        h1{
+            margin:0 0 8px 0;
+            font-size:22px;
+            color:#fff;
+        }
+        p{
+            margin:0 0 18px 0;
+            color:var(--muted);
+            line-height:1.4;
+        }
+        .actions{display:flex;gap:12px;flex-wrap:wrap}
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            padding:10px 16px;
+            border-radius:10px;
+            font-weight:600;
+            text-decoration:none;
+            cursor:pointer;
+            transition:transform .12s ease, box-shadow .12s ease;
+            border:1px solid rgba(255,255,255,0.04);
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            color:#eaf0ff;
+        }
+        .btn:active{transform:translateY(1px)}
+        .primary{
+            background:linear-gradient(90deg,var(--accent),#5fb3ff);
+            color:#021026;
+            box-shadow:0 8px 24px rgba(92,92,255,0.16);
+            border:0;
+        }
+        .ghost{
+            background:transparent;
+            color:var(--muted);
+        }
+        .search{
+            margin-top:14px;
+            display:flex;
+            gap:8px;
+            max-width:520px;
+        }
+        .search input{
+            flex:1;
+            padding:10px 12px;
+            border-radius:10px;
+            border:1px solid rgba(255,255,255,0.04);
+            background:transparent;
+            color:inherit;
+            outline:none;
+        }
+        .small{font-size:13px;color:var(--muted);margin-top:10px}
+        @media (max-width:720px){
+            .card{flex-direction:column;align-items:stretch;padding:28px}
+            .art{width:100%;height:120px;flex:initial}
+            .code{font-size:48px}
+        }
+    </style>
+</head>
+<body>
+    <main class="card" role="main">
+        <div class="art" aria-hidden="true">
+            <div class="code">404</div>
+        </div>
+        <section class="content">
+            <h1>Страница не найдена</h1>
+            <p>Возможно, ссылка устарела или страница была удалена. Проверьте URL или вернитесь на главную.</p>
+
+            <div class="search" role="search" aria-label="Поиск по сайту">
+                <input id="q" name="q" placeholder="Поиск или вставьте URL..." />
+                <button class="btn primary" id="searchBtn">Поиск</button>
+            </div>
+
+            <div class="actions" style="margin-top:14px;">
+                <a href="/" class="btn">На главную</a>
+                <button class="btn ghost" id="backBtn">Назад</button>
+            </div>
+
+            <div class="small">Если проблема повторяется, свяжитесь с администратором сайта.</div>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('backBtn').addEventListener('click', function(){
+            if(history.length>1) history.back(); else location.href = '/';
+        });
+        document.getElementById('searchBtn').addEventListener('click', function(){
+            const q = document.getElementById('q').value.trim();
+            if(!q) { document.getElementById('q').focus(); return; }
+            // простая логика: если введён URL — перейти, иначе выполнить поиск на сайте
+            try{
+                const url = new URL(q);
+                location.href = url.href;
+            }catch(e){
+                const params = new URLSearchParams({q});
+                location.href = '/search?' + params.toString();
+            }
+        });
+        document.getElementById('q').addEventListener('keydown', function(e){
+            if(e.key === 'Enter') document.getElementById('searchBtn').click();
+        });
+    </script>
+</body>
+</html>

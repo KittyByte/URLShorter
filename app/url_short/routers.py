@@ -1,11 +1,18 @@
 from fastapi import APIRouter
-from fastapi.responses import RedirectResponse, ORJSONResponse
+from fastapi.responses import RedirectResponse, FileResponse
+from fastapi import status
+from fastapi import Request
 from app.url_short.schemas import ShortenURLRequest, ShortenURLResponse
 from app.url_short.service import create_short_url, get_url_data_by_code
 
 
 
 router = APIRouter(tags=['URL Shortener'])
+
+
+@router.get('/404', name='not_found')
+async def not_found():
+    return FileResponse('app/static/404.html', status_code=status.HTTP_404_NOT_FOUND)
 
 
 @router.post('/shorten')
@@ -15,10 +22,10 @@ async def shorten_url(original_url: ShortenURLRequest) -> ShortenURLResponse:
 
 
 @router.get('/{short_code}')
-async def redirect_url(short_code: str):
+async def redirect_url(request: Request, short_code: str):
     url_data = await get_url_data_by_code(short_code)
 
     if url_data:
-        return RedirectResponse(url=url_data.original_url)
-    return ORJSONResponse(status_code=404, content={"detail": "URL not found"})
+        return RedirectResponse(url_data.original_url, status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(request.url_for('not_found'), status_code=status.HTTP_302_FOUND)
 
