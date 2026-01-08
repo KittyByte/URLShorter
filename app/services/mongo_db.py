@@ -1,14 +1,19 @@
 from pymongo import AsyncMongoClient
+
 from app.settings import db_settings
 
+# TODO добавить сделать пулл подключений
+
+async def get_mongo_client():
+    return AsyncMongoClient(db_settings.MONGO_URL)
 
 
-class MongoDB:
+class BaseMongoDB:
     database = None
     collection = None
 
-    def __init__(self):
-        self.client = AsyncMongoClient(db_settings.MONGO_URL)
+    def __init__(self, client: AsyncMongoClient):
+        self.client = client
 
     def get_database(self):
         return self.client.get_database('url_shortener')

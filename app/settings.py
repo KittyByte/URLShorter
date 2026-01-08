@@ -45,7 +45,7 @@ class DBSettings(BaseModelSettings):
 
     @property
     def REDIS_URL(self):
-        return f'redis://{self.REDIS_USER}:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/'
+        return f'redis://{self.REDIS_USER}:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/0'
 
 db_settings = DBSettings()
 
