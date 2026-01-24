@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from redis.asyncio import ConnectionPool
 
 
 
@@ -68,3 +69,6 @@ class BrokerSettings(BaseModelSettings):
 
 broker_settings = BrokerSettings()
 
+
+
+redis_pool = ConnectionPool.from_url(db_settings.REDIS_URL, decode_responses=True)

@@ -1,11 +1,8 @@
-from redis.asyncio import Redis, ConnectionPool
+from redis.asyncio import Redis
 
-from app.settings import db_settings
+from app.settings import redis_pool
 from app.url_short.schemas import URLShortRedis
 
-
-
-redis_pool = ConnectionPool.from_url(db_settings.REDIS_URL, decode_responses=True)
 
 
 def get_redis_client() -> Redis:
