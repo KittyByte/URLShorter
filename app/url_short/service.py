@@ -4,7 +4,7 @@ import string
 from sqlalchemy import exc
 
 from app.url_short.dao import ShortURLDAO
-from app.url_short.schemas import URLShortDB, URLShortRedis
+from app.url_short.schemas import URLShortRedis
 from app.services.redis_service import URLRedisService
 
 
@@ -26,7 +26,7 @@ async def create_short_url(original_url: str, owner_id: int | None = None) -> st
     return short_code
 
 
-async def get_url_data_by_code(short_code: str) -> URLShortDB | URLShortRedis | None:
+async def get_url_data_by_code(short_code: str) -> URLShortRedis | None:
     redis_service = URLRedisService()
 
     if await redis_service.redis.exists(short_code):
@@ -37,5 +37,5 @@ async def get_url_data_by_code(short_code: str) -> URLShortDB | URLShortRedis | 
         if short_url_data:
             await redis_service.set_url_data(short_code, short_url_data)
 
-    return URLShortDB(**short_url_data) if short_url_data else None
+    return URLShortRedis(**short_url_data) if short_url_data else None
 

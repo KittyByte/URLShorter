@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>URLShorter — Сокращение ссылок</title>
+    <style>
+        :root{
+            --bg1:#0f1724; --bg2:#0b1020; --accent:#7c5cff; --muted:#9aa4b2; --card:#0f1728;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background:linear-gradient(135deg,var(--bg1),var(--bg2));
+            color:#e6eef8;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+        }
+        .wrap{width:100%;max-width:980px}
+        .top{
+            display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
+        }
+        .brand{display:flex;gap:12px;align-items:center}
+        .logo{
+            width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+            background:linear-gradient(135deg, rgba(124,92,255,0.15), rgba(92,149,255,0.08));
+            font-weight:700;color:var(--accent)
+        }
+        .nav-actions{display:flex;gap:10px}
+        .btn{
+            display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;font-weight:600;
+            text-decoration:none;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;
+            border:1px solid rgba(255,255,255,0.04);
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            color:#eaf0ff;
+        }
+        .primary{background:linear-gradient(90deg,var(--accent),#5fb3ff);color:#021026;border:0}
+        .ghost{background:transparent;color:var(--muted)}
+        .card{
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border:1px solid rgba(255,255,255,0.04);
+            border-radius:16px;padding:36px;display:flex;gap:28px;align-items:center;
+            box-shadow:0 10px 30px rgba(2,6,23,0.6);backdrop-filter: blur(6px);
+        }
+        .art{flex:0 0 180px;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+            background:linear-gradient(135deg, rgba(124,92,255,0.15), rgba(92,149,255,0.08));
+            box-shadow: inset 0 -10px 30px rgba(124,92,255,0.06);
+        }
+        .art .code{font-weight:700;font-size:36px;letter-spacing:1px;color:var(--accent)}
+        .content{flex:1}
+        h1{margin:0 0 8px 0;font-size:22px;color:#fff}
+        p{margin:0 0 18px 0;color:var(--muted);line-height:1.4}
+        .shorten{display:flex;gap:10px;align-items:center}
+        input[type="text"]{flex:1;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;outline:none}
+        .small{font-size:13px;color:var(--muted);margin-top:10px}
+        .result{margin-top:14px;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,0.03)}
+        .muted{color:var(--muted)}
+        /* Modal */
+        .overlay{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+        .overlay.active{display:flex}
+        .modal{width:100%;max-width:520px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.04)}
+        .modal h2{margin:0 0 8px 0;font-size:18px}
+        .field{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+        .tabs{display:flex;gap:6px;margin-bottom:12px}
+        .tab{padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);cursor:pointer;color:var(--muted)}
+        .tab.active{background:linear-gradient(90deg,var(--accent),#5fb3ff);color:#021026;border:0}
+        .close{background:transparent;border:0;color:var(--muted);cursor:pointer;font-weight:700}
+        @media (max-width:720px){
+            .card{flex-direction:column;align-items:stretch;padding:22px}
+            .art{width:100%;height:120px;flex:initial}
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="top">
+            <div class="brand">
+                <div class="logo" aria-hidden="true">URL</div>
+                <div>
+                    <div style="font-weight:700">URLShorter</div>
+                    <div class="muted" style="font-size:13px">Быстрое сокращение ссылок</div>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="btn ghost" id="openRegister">Создать аккаунт</button>
+                <button class="btn" id="openLogin">Войти</button>
+            </div>
+        </div>
+
+        <main class="card" role="main">
+            <div class="art" aria-hidden="true"><div class="code">Short</div></div>
+            <section class="content">
+                <h1>Сократите ссылку за пару кликов</h1>
+                <p>Вставьте длинную ссылку ниже — получите короткую и удобную для распространения.</p>
+
+                <div class="shorten" role="search" aria-label="Сокращение ссылки">
+                    <input id="urlInput" type="text" placeholder="Вставьте URL или текст..." />
+                    <button class="btn primary" id="shortenBtn">Сократить</button>
+                </div>
+
+                <div id="resultArea" style="display:none" class="result" aria-live="polite">
+                    <div class="muted" id="shortLink"></div>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn" id="copyBtn">Копировать</button>
+                        <a class="btn ghost" id="openDetails" href="#" target="_blank">Открыть</a>
+                    </div>
+                </div>
+
+                <div class="small">У вас есть аккаунт? Войдите, чтобы управлять ссылками и просматривать статистику.</div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal overlay -->
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal" role="document">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div style="display:flex;flex-direction:column">
+                    <div style="font-weight:700" id="modalTitle">Войти</div>
+                    <div class="muted" style="font-size:13px" id="modalSubtitle">Используйте свою почту и пароль</div>
+                </div>
+                <button class="close" id="closeModal" aria-label="Закрыть">✕</button>
+            </div>
+
+            <div class="tabs" role="tablist">
+                <button class="tab active" data-mode="login">Войти</button>
+                <button class="tab" data-mode="register">Регистрация</button>
+            </div>
+
+            <form id="authForm">
+                <div class="field" id="nameField" style="display:none">
+                    <label class="muted">Имя</label>
+                    <input type="text" id="name" placeholder="Ваше имя" />
+                </div>
+
+                <div class="field">
+                    <label class="muted">Почта</label>
+                    <input type="email" id="email" placeholder="you@example.com" required />
+                </div>
+
+                <div class="field">
+                    <label class="muted">Пароль</label>
+                    <input type="password" id="password" placeholder="Пароль" required />
+                </div>
+
+                <div class="field" id="confirmField" style="display:none">
+                    <label class="muted">Повторите пароль</label>
+                    <input type="password" id="confirm" placeholder="Повторите пароль" />
+                </div>
+
+                <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+                    <button type="submit" class="btn primary" id="submitAuth">Продолжить</button>
+                    <button type="button" class="btn ghost" id="cancelAuth">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const overlay = document.getElementById('overlay');
+        const openLogin = document.getElementById('openLogin');
+        const openRegister = document.getElementById('openRegister');
+        const closeModal = document.getElementById('closeModal');
+        const cancelAuth = document.getElementById('cancelAuth');
+        const tabs = document.querySelectorAll('.tab');
+        const nameField = document.getElementById('nameField');
+        const confirmField = document.getElementById('confirmField');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSubtitle = document.getElementById('modalSubtitle');
+        const authForm = document.getElementById('authForm');
+
+        function openModal(mode){
+            overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false');
+            selectMode(mode || 'login');
+        }
+        function closeModalFn(){
+            overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true');
+            authForm.reset();
+        }
+        function selectMode(mode){
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+            if(mode === 'register'){
+                nameField.style.display='flex';
+                confirmField.style.display='flex';
+                modalTitle.textContent='Регистрация';
+                modalSubtitle.textContent='Создайте аккаунт';
+                document.getElementById('submitAuth').textContent='Зарегистрироваться';
+            } else {
+                nameField.style.display='none';
+                confirmField.style.display='none';
+                modalTitle.textContent='Войти';
+                modalSubtitle.textContent='Используйте свою почту и пароль';
+                document.getElementById('submitAuth').textContent='Войти';
+            }
+        }
+
+        openLogin.addEventListener('click', ()=>openModal('login'));
+        openRegister.addEventListener('click', ()=>openModal('register'));
+        closeModal.addEventListener('click', closeModalFn);
+        cancelAuth.addEventListener('click', closeModalFn);
+        overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModalFn(); });
+
+        tabs.forEach(t => t.addEventListener('click', ()=>selectMode(t.dataset.mode)));
+
+        authForm.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const mode = document.querySelector('.tab.active').dataset.mode;
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            if(!email || !password){ alert('Заполните поля'); return; }
+            if(mode==='register'){
+                const confirm = document.getElementById('confirm').value;
+                if(password !== confirm){ alert('Пароли не совпадают'); return; }
+                // Здесь должна быть регистрация на сервере
+                alert('Регистрация успешна (демо)');
+            } else {
+                // Здесь должна быть проверка на сервере
+                alert('Вход выполнен (демо)');
+            }
+            closeModalFn();
+        });
+
+        // Shorten logic (с запросом на http://127.0.0.1/shorten)
+        const shortenBtn = document.getElementById('shortenBtn');
+        const urlInput = document.getElementById('urlInput');
+        const resultArea = document.getElementById('resultArea');
+        const shortLink = document.getElementById('shortLink');
+        const copyBtn = document.getElementById('copyBtn');
+        const openDetails = document.getElementById('openDetails');
+
+        function makeId(n=6){ const s='abcdefghijklmnopqrstuvwxyz0123456789'; let r=''; for(let i=0;i<n;i++) r+=s[Math.floor(Math.random()*s.length)]; return r; }
+
+        function extractServerError(data){
+            if(!data) return null;
+            if(Array.isArray(data.detail)){
+                return data.detail.map(d => d.msg || JSON.stringify(d)).join('; ');
+            }
+            return data.detail || data.error || data.message || null;
+        }
+
+        shortenBtn.addEventListener('click', async ()=>{
+            const raw = urlInput.value.trim();
+            if(!raw){ urlInput.focus(); return; }
+            let dest = raw;
+
+            // POST { original_url: "..." } -> ответ { "short_code":"0r0BI5" }
+            let resp;
+            try{
+                resp = await fetch('http://127.0.0.1/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type':'application/json' },
+                    body: JSON.stringify({ original_url: dest })
+                });
+            }catch(err){
+                alert('Ошибка сети: ' + (err.message || 'не удалось подключиться к серверу'));
+                return;
+            }
+
+            let data;
+            try{ data = await resp.json(); }catch(e){
+                alert('Не удалось прочитать ответ сервера');
+                return;
+            }
+
+            if(!resp.ok){
+                const msg = extractServerError(data) || ('Сервер вернул код ' + resp.status);
+                alert('Ошибка: ' + msg);
+                return;
+            }
+
+            if(data && data.short_code){
+                const short = location.origin + '/' + data.short_code;
+                shortLink.textContent = short;
+                openDetails.href = short;
+                resultArea.style.display = 'flex';
+                return;
+            }
+
+            const msg = extractServerError(data) || 'Некорректный ответ сервера';
+            alert('Ошибка: ' + msg);
+        });
+
+        copyBtn.addEventListener('click', async ()=>{
+            const text = shortLink.textContent;
+            if(!text) return;
+            try{ await navigator.clipboard.writeText(text); copyBtn.textContent='Скопировано'; setTimeout(()=>copyBtn.textContent='Копировать',1500); }catch(e){ alert('Не удалось скопировать'); }
+        });
+
+        // Enter to shorten
+        urlInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') shortenBtn.click(); });
+    </script>
+</body>
+</html>

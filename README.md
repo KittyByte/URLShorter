@@ -2,27 +2,7 @@
 Сервис по сокращению ссылок
 
 
-### 1. Подготовка проекта и инфраструктура (обязательно сначала)
-- [ ] Добавить базовый CI (GitHub Actions: lint + tests)
-
-### 2. MVP: Core функциональность сокращателя
-- [ ] Реализовать модель ссылки в MongoDB (pymongo или motor для async)
-- [ ] Эндпоинт POST /shorten (анонимный на первом этапе)
-  - Валидация URL через pydantic
-  - Генерация короткого кода (base62 от counter или hash)
-  - Проверка коллизий
-  - Сохранение в Mongo
-  - Кэширование в Redis (SET short_code -> original_url с TTL)
-- [ ] Эндпоинт GET /{short_code}
-  - Сначала проверка в Redis
-  - Если miss — загрузка из Mongo и заполнение Redis
-  - 301 Redirect на original_url
-  - Если не найдено — 404 с красивой страницей
-- [ ] Добавить BackgroundTask для асинхронного логирования клика (пока просто в лог или временную коллекцию)
-
 ### 3. Аутентификация и пользователи
-- [ ] Подключить PostgreSQL + SQLAlchemy + Alembic
-- [ ] Создать модель User (id, username, email, password_hash)
 - [ ] Миграции через Alembic
 - [ ] Реализовать регистрацию и логин (JWT или FastAPI Users)
 - [ ] Защитить эндпоинты Depends(get_current_user)
