@@ -1,5 +1,6 @@
 import jwt
 from datetime import datetime, timedelta, timezone
+from sqlalchemy.exc import IntegrityError
 
 from app.settings import settings, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.users.schemas import UserInDB
@@ -34,3 +35,9 @@ async def create_access_token(
 async def get_user(username: str) -> UserInDB | None:
     return await UserDAO.find_one_by(username=username)
 
+
+async def create_user(username: str, password: str) -> bool:
+    try:
+        return await UserDAO.create(username=username, password=password)
+    except IntegrityError:
+        return False

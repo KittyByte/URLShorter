@@ -1,10 +1,11 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
+from app.common.shemas import SuccessResponse
 
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
 
 
 class TokenData(BaseModel):
@@ -22,4 +23,13 @@ class User(BaseModel):
 class UserInDB(User):
     id: int
     hashed_password: str = Field(validation_alias='password')
+
+
+class InputRegisterUserData(BaseModel):
+    username: str
+    password: str
+
+
+class RegisterResponse(SuccessResponse):
+    token: Token | None = None
 
