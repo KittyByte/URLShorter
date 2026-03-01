@@ -1,6 +1,6 @@
-import argon2
-from asyncio import to_thread
+import asyncio
 
+import argon2
 from app.orm.dao import BaseDAO
 from app.users.models import UserModel
 from app.users.schemas import UserInDB
@@ -14,7 +14,7 @@ class UserDAO(BaseDAO):
 
     @classmethod
     async def _hash_password(cls, password: str):
-        return await to_thread(ph.hash, password)
+        return await asyncio.to_thread(ph.hash, password)
 
     @classmethod
     async def find_one_by(cls, **filter_by):
@@ -28,13 +28,17 @@ class UserDAO(BaseDAO):
 
     @classmethod
     async def create_bulk(cls, values):
-        for value in values:
-            value['password'] = await cls._hash_password(value['password'])
+        tasks = [cls._hash_password(v['password']) for v in values]
+        hashed_passwords = await asyncio.gather(*tasks)
+
+        for value, pwd in zip(values, hashed_passwords):
+            value['password'] = pwd
+
         return await super().create_bulk(values)
 
     @classmethod
     async def is_valid_password(cls, password: str, hashed_password: str) -> bool:
         try:
-            return await to_thread(ph.verify, hashed_password, password)
+            return await asyncio.to_thread(ph.verify, hashed_password, password)
         except argon2.exceptions.VerifyMismatchError:
             return False
